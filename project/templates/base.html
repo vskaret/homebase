@@ -1,0 +1,29 @@
+{% load static %} {% load django_htmx %} {% load partials %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.18/dist/css/core.min.css"
+    />
+
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.18/dist/css/utilities.min.css"
+    />
+
+    {% htmx_script %}
+
+</head>
+    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <main style="display: contents;">
+            <div class="min-h-screen max-w-screen-xl mx-auto flex flex-col">
+                {% block main %}
+                {% endblock %}
+            </div>
+        </main>
+    </body>
+</html>

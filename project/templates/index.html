@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <div class="flex flex-col gap-4 max-w-screen-sm">
+        <h1 class="text-xl font-bold">Årshjulet</h1>
+        <a class="uk-card uk-card-body" href="/spring/">
+            <h2 class="uk-card-title">Vår</h2>
+        </a>
+        <a class="uk-card uk-card-body" href="/summer/">
+            <h2 class="uk-card-title">Sommer</h2>
+        </a>
+        <a class="uk-card uk-card-body" href="/autumn/">
+            <h2 class="uk-card-title">Høst</h2>
+        </a>
+        <a class="uk-card uk-card-body" href="/winter/">
+            <h2 class="uk-card-title">Winter</h2>
+        </a>
+    </div>
+{% endblock %}
