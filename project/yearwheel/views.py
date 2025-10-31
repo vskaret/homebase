@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed
 from django.utils import timezone
+from django.db.models import Q
 import calendar
 from .models import Task, TaskDone
 from .forms import TaskForm
@@ -26,22 +27,22 @@ def index(request: HttpRequest) -> HttpResponse:
     cal = calendar.Calendar(firstweekday=0)  # Monday first
     raw_weeks = cal.monthdayscalendar(year, month)  # list of weeks, 0 = out-of-month
 
-    # Fetch tasks for this month that have a specific day
-    month_tasks = (
-        Task.objects.filter(month=month, day__isnull=False, is_deleted=False)
-        .order_by("day", "name")
-    )
+    # Fetch candidate tasks (not deleted); we will resolve occurrence per month
+    candidates = Task.objects.filter(is_deleted=False)
 
-    # Load completion state for the selected year
+    # Load completion state for the selected year+month
     done_ids = set(
-        TaskDone.objects.filter(year=year, task__in=month_tasks).values_list("task_id", flat=True)
+        TaskDone.objects.filter(year=year, month=month, task__in=candidates).values_list("task_id", flat=True)
     )
 
     tasks_by_day = {}
-    for t in month_tasks:
+    for t in candidates:
+        day = t.occurrence_day_in(year, month)
+        if not day:
+            continue
         # transient attribute for template
         t.is_done = t.id in done_ids
-        tasks_by_day.setdefault(t.day, []).append(t)
+        tasks_by_day.setdefault(day, []).append(t)
 
     # Enrich weeks with tasks per day for easy templating
     weeks = [
@@ -89,7 +90,15 @@ def month_list(request: HttpRequest) -> HttpResponse:
     if not 1 <= selected_month <= 12:
         selected_month = timezone.localdate().month
 
-    tasks = Task.objects.filter(month=selected_month, is_deleted=False).order_by("day", "name")
+    year = timezone.localdate().year
+    candidates = Task.objects.filter(is_deleted=False)
+    items = []
+    for t in candidates:
+        day = t.occurrence_day_in(year, selected_month)
+        if day:
+            t._occurrence_day = day
+            items.append(t)
+    tasks = sorted(items, key=lambda t: (t._occurrence_day, t.name.lower()))
 
     # Build month choices 1..12
     month_choices = [
@@ -126,15 +135,16 @@ def task_create(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = TaskForm(request.POST)
         if form.is_valid():
-            task = form.save(commit=False)
-            # Ensure model validation runs (ModelForm usually calls full_clean on save, but we enforce)
-            task.full_clean()
-            task.save()
-            # Redirect back to appropriate listing: month if provided, else season
-            month = task.month
-            if month:
-                return redirect(f"/tasks/?month={month}")
-            return redirect("season", season=task.season or Task.derive_season(task.month))
+            task = form.save()
+            # Redirect back to appropriate listing.
+            if task.month:
+                return redirect(f"/tasks/?month={task.month}")
+            # For monthly/quarterly/semiannual tasks without a fixed month, go to current month
+            if getattr(task, "recurrence", None) in {Task.Recurrence.MONTHLY, Task.Recurrence.QUARTERLY, Task.Recurrence.SEMIANNUAL}:
+                return redirect(f"/tasks/?month={timezone.localdate().month}")
+            if task.season:
+                return redirect("season", season=task.season)
+            return redirect("index")
     else:
         form = TaskForm()
 
@@ -146,14 +156,15 @@ def task_edit(request: HttpRequest, pk: int) -> HttpResponse:
     if request.method == "POST":
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
-            task = form.save(commit=False)
-            task.full_clean()
-            task.save()
+            task = form.save()
             # Prefer redirect to selected month list
-            month = task.month
-            if month:
-                return redirect(f"/tasks/?month={month}")
-            return redirect("season", season=task.season or Task.derive_season(task.month))
+            if task.month:
+                return redirect(f"/tasks/?month={task.month}")
+            if getattr(task, "recurrence", None) in {Task.Recurrence.MONTHLY, Task.Recurrence.QUARTERLY, Task.Recurrence.SEMIANNUAL}:
+                return redirect(f"/tasks/?month={timezone.localdate().month}")
+            if task.season:
+                return redirect("season", season=task.season)
+            return redirect("index")
     else:
         form = TaskForm(instance=task)
     cancel_url = f"/tasks/?month={task.month}" if task.month else "/"
@@ -188,8 +199,12 @@ def task_toggle_done(request: HttpRequest, task_id: int) -> HttpResponse:
         year = int(request.POST.get("year") or timezone.localdate().year)
     except (TypeError, ValueError):
         year = timezone.localdate().year
+    try:
+        month = int(request.POST.get("month") or timezone.localdate().month)
+    except (TypeError, ValueError):
+        month = timezone.localdate().month
 
-    mark, created = TaskDone.objects.get_or_create(task=task, year=year)
+    mark, created = TaskDone.objects.get_or_create(task=task, year=year, month=month)
     if not created:
         # already exists -> uncheck by deleting
         mark.delete()
@@ -199,4 +214,4 @@ def task_toggle_done(request: HttpRequest, task_id: int) -> HttpResponse:
 
     # attach transient flag for rendering
     task.is_done = is_done
-    return render(request, "partials/task_checkbox.html", {"task": task, "year": year})
+    return render(request, "partials/task_checkbox.html", {"task": task, "year": year, "month": month})

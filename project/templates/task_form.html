@@ -23,16 +23,52 @@
             {{ form.notes.errors }}
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <div>
-                <label class="block text-sm font-medium">Måned (1-12)</label>
-                <div>{{ form.month }}</div>
-                {{ form.month.errors }}
+                <label class="block text-sm font-medium">Planleggingstype</label>
+                <select id="schedule_type" class="block w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="toggleSchedule(this.value)">
+                    <option value="date" {% if form.instance.pk and form.instance.day %}selected{% endif %}>Dato (dag/måned)</option>
+                    <option value="weekday" {% if form.instance.pk and form.instance.week_rank %}selected{% endif %}>Ukedag i måned</option>
+                </select>
             </div>
+            <div>
+                <label class="block text-sm font-medium">Hyppighet</label>
+                <div>{{ form.recurrence }}</div>
+            </div>
+        </div>
+
+        <!-- Date fields -->
+        <div id="date-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
                 <label class="block text-sm font-medium">Dag (1-31)</label>
                 <div>{{ form.day }}</div>
                 {{ form.day.errors }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Måned</label>
+                <div>{{ form.month }}</div>
+                <div class="text-xs text-gray-500 mt-1">På månedlig gjentas hver måned; for halvårlig og kvartalsvis brukes dette som startmåned.</div>
+                {{ form.month.errors }}
+            </div>
+        </div>
+
+        <!-- Weekday-in-month fields -->
+        <div id="weekday-fields" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" style="display:none">
+            <div>
+                <label class="block text-sm font-medium">Rang</label>
+                <div>{{ form.week_rank }}</div>
+                {{ form.week_rank.errors }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Ukedag</label>
+                <div>{{ form.weekday }}</div>
+                {{ form.weekday.errors }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Måned</label>
+                <div>{{ form.month }}</div>
+                <div class="text-xs text-gray-500 mt-1">På månedlig gjentas hver måned; for halvårlig og kvartalsvis brukes dette som startmåned.</div>
+                {{ form.month.errors }}
             </div>
         </div>
 
@@ -42,4 +78,27 @@
         </div>
     </form>
 </div>
+<script>
+  function setDisabled(container, disabled) {
+    if (!container) return;
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = disabled;
+    });
+  }
+  function toggleSchedule(mode) {
+    const dateEl = document.getElementById('date-fields');
+    const weekdayEl = document.getElementById('weekday-fields');
+    const dateVisible = (mode === 'date');
+    const weekdayVisible = (mode === 'weekday');
+    dateEl.style.display = dateVisible ? '' : 'none';
+    weekdayEl.style.display = weekdayVisible ? '' : 'none';
+    setDisabled(dateEl, !dateVisible);
+    setDisabled(weekdayEl, !weekdayVisible);
+  }
+  // Initialize
+  (function(){
+    const sel = document.getElementById('schedule_type');
+    toggleSchedule(sel.value);
+  })();
+</script>
 {% endblock %}

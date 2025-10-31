@@ -36,7 +36,7 @@
                                             <div class="text-sm font-semibold mb-1 {% if today.day == cell.day %}text-blue-600{% endif %}">{{ cell.day }}</div>
                                             {% if cell.tasks %}
                                                 {% for t in cell.tasks %}
-                                                    {% include 'partials/task_checkbox.html' with task=t year=year %}
+                                                    {% include 'partials/task_checkbox.html' with task=t year=year month=month %}
                                                 {% endfor %}
                                             {% else %}
                                                 <div class="text-xs text-gray-500">Ingen</div>
