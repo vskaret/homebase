@@ -23,6 +23,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('tasks/', views.month_list, name='month_list'),
     path('task/new/', views.task_create, name='task_create'),
+    path('task/<int:pk>/edit/', views.task_edit, name='task_edit'),
+    path('task/<int:pk>/delete/', views.task_delete, name='task_delete'),
     path('task/<int:task_id>/toggle-done/', views.task_toggle_done, name='task_toggle_done'),
     path('<str:season>/', views.season_list, name='season'),
 ]

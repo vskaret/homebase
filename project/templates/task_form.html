@@ -2,7 +2,7 @@
 
 {% block main %}
 <div class="flex flex-col gap-4 max-w-screen-sm py-6">
-    <h1 class="text-xl font-bold">Ny oppgave</h1>
+    <h1 class="text-xl font-bold">{% if form.instance.pk %}Rediger oppgave{% else %}Ny oppgave{% endif %}</h1>
     <form method="post" class="rounded border border-gray-200 bg-white p-4 shadow-sm">
         {% csrf_token %}
         {% if form.non_field_errors %}
@@ -38,7 +38,7 @@
 
         <div class="mt-6 flex items-center gap-2">
             <button class="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" type="submit">Lagre</button>
-            <a href="/" class="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 hover:bg-gray-50">Avbryt</a>
+            <a href="{{ cancel_url|default:'/' }}" class="inline-flex items-center rounded border border-gray-300 bg-white px-4 py-2 hover:bg-gray-50">Avbryt</a>
         </div>
     </form>
 </div>

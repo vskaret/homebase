@@ -28,7 +28,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
     # Fetch tasks for this month that have a specific day
     month_tasks = (
-        Task.objects.filter(month=month, day__isnull=False)
+        Task.objects.filter(month=month, day__isnull=False, is_deleted=False)
         .order_by("day", "name")
     )
 
@@ -89,7 +89,7 @@ def month_list(request: HttpRequest) -> HttpResponse:
     if not 1 <= selected_month <= 12:
         selected_month = timezone.localdate().month
 
-    tasks = Task.objects.filter(month=selected_month).order_by("day", "name")
+    tasks = Task.objects.filter(month=selected_month, is_deleted=False).order_by("day", "name")
 
     # Build month choices 1..12
     month_choices = [
@@ -113,7 +113,7 @@ def season_list(request: HttpRequest, season: str) -> HttpResponse:
         from django.http import HttpResponseNotFound
         return HttpResponseNotFound("Season not found")
 
-    tasks = Task.objects.filter(season=season).order_by("month", "day", "name")
+    tasks = Task.objects.filter(season=season, is_deleted=False).order_by("month", "day", "name")
     context = {
         "season": season,
         "season_label": dict(Task.Season.choices)[season],
@@ -130,11 +130,54 @@ def task_create(request: HttpRequest) -> HttpResponse:
             # Ensure model validation runs (ModelForm usually calls full_clean on save, but we enforce)
             task.full_clean()
             task.save()
+            # Redirect back to appropriate listing: month if provided, else season
+            month = task.month
+            if month:
+                return redirect(f"/tasks/?month={month}")
             return redirect("season", season=task.season or Task.derive_season(task.month))
     else:
         form = TaskForm()
 
-    return render(request, "task_form.html", {"form": form})
+    return render(request, "task_form.html", {"form": form, "cancel_url": "/"})
+
+
+def task_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    task = get_object_or_404(Task, pk=pk, is_deleted=False)
+    if request.method == "POST":
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.full_clean()
+            task.save()
+            # Prefer redirect to selected month list
+            month = task.month
+            if month:
+                return redirect(f"/tasks/?month={month}")
+            return redirect("season", season=task.season or Task.derive_season(task.month))
+    else:
+        form = TaskForm(instance=task)
+    cancel_url = f"/tasks/?month={task.month}" if task.month else "/"
+    return render(request, "task_form.html", {"form": form, "cancel_url": cancel_url})
+
+
+def task_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    task = get_object_or_404(Task, pk=pk, is_deleted=False)
+    # read month from form payload to preserve filter
+    try:
+        selected_month = int(request.POST.get("month") or 0)
+    except (TypeError, ValueError):
+        selected_month = task.month or 0
+    task.is_deleted = True
+    task.deleted_at = timezone.now()
+    task.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
+    if selected_month:
+        return redirect(f"/tasks/?month={selected_month}")
+    # fallback to season list or home
+    if task.season:
+        return redirect("season", season=task.season)
+    return redirect("index")
 
 
 def task_toggle_done(request: HttpRequest, task_id: int) -> HttpResponse:
