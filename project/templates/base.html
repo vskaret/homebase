@@ -15,10 +15,56 @@
             href="https://cdn.jsdelivr.net/npm/franken-ui@2.1.0-next.18/dist/css/utilities.min.css"
     />
 
+    <style>
+      /* Make placeholder text less pronounced */
+      .uk-input::placeholder,
+      .uk-textarea::placeholder,
+      input::placeholder,
+      textarea::placeholder {
+        color: #9e9e9e; /* muted gray */
+        opacity: 1; /* ensure consistent color across browsers */
+      }
+
+      /* Ensure checkboxes visibly reflect their checked state */
+      .uk-checkbox {
+        -webkit-appearance: auto;
+        appearance: auto;
+        accent-color: #1e87f0; /* UIkit primary blue */
+        width: 16px;
+        height: 16px;
+      }
+      /* If any utility CSS zeroes borders/backgrounds, keep them visible */
+      .uk-checkbox {
+        border: 1px solid rgba(0,0,0,0.3);
+        border-radius: 2px;
+        background-color: #fff;
+      }
+      .uk-checkbox:focus {
+        outline: 2px solid rgba(30,135,240,0.35);
+        outline-offset: 1px;
+      }
+    </style>
+
     {% htmx_script %}
+    <script>
+      // Attach CSRF token from cookie to all HTMX requests to avoid 403s
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+      }
+      document.addEventListener('htmx:configRequest', function (e) {
+        const token = getCookie('csrftoken');
+        if (token) {
+          e.detail.headers['X-CSRFToken'] = token;
+        }
+      });
+    </script>
 
 </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <!-- Force CSRF cookie creation on initial GET -->
+        <div style="display:none">{% csrf_token %}</div>
         <main style="display: contents;">
             <div class="min-h-screen max-w-screen-xl mx-auto flex flex-col">
                 {% block main %}

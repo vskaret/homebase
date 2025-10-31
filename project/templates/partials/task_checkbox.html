@@ -1,0 +1,16 @@
+{# Renders a single task checkbox with htmx toggle and strike-through when done #}
+<label
+  class="flex items-center gap-2 text-sm"
+  hx-post="{% url 'task_toggle_done' task.id %}"
+  hx-trigger="click"
+  hx-target="this"
+  hx-swap="outerHTML"
+  hx-vals='{"year": "{{ year }}"}'
+>
+  <input
+    class="uk-checkbox"
+    type="checkbox"
+    {% if task.is_done %}checked{% endif %}
+  />
+  <span class="{% if task.is_done %}line-through uk-text-muted{% endif %}">{{ task.name }}</span>
+</label>

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="flex flex-col gap-4 max-w-screen-sm py-6">
+    <h1 class="text-xl font-bold">Ny oppgave</h1>
+    <form method="post" class="uk-form-stacked uk-card uk-card-body">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="uk-alert-danger" uk-alert>
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="uk-margin-medium">
+            <label class="uk-form-label">Navn</label>
+            <div class="uk-form-controls">{{ form.name }}</div>
+            {{ form.name.errors }}
+        </div>
+
+        <div class="uk-margin-medium">
+            <label class="uk-form-label">Notater</label>
+            <div class="uk-form-controls">{{ form.notes }}</div>
+            {{ form.notes.errors }}
+        </div>
+
+        
+        <div class="uk-grid-medium" uk-grid>
+            <div class="uk-width-1-2">
+                <label class="uk-form-label">Måned (1-12)</label>
+                <div class="uk-form-controls">{{ form.month }}</div>
+                {{ form.month.errors }}
+            </div>
+            <div class="uk-width-1-2">
+                <label class="uk-form-label">Dag (1-31)</label>
+                <div class="uk-form-controls">{{ form.day }}</div>
+                {{ form.day.errors }}
+            </div>
+        </div>
+
+        <div class="uk-margin-medium">
+            <button class="uk-button uk-button-primary" type="submit">Lagre</button>
+            <a href="/" class="uk-button uk-button-default">Avbryt</a>
+        </div>
+
+        <div class="uk-text-meta">Oppgi både Måned og Dag dersom du vil angi en dato.</div>
+    </form>
+</div>
+{% endblock %}

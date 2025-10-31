@@ -16,9 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-import yearwheel.views as views
+from yearwheel import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index),
+    path('', views.index, name='index'),
+    path('tasks/', views.month_list, name='month_list'),
+    path('task/new/', views.task_create, name='task_create'),
+    path('task/<int:task_id>/toggle-done/', views.task_toggle_done, name='task_toggle_done'),
+    path('<str:season>/', views.season_list, name='season'),
 ]

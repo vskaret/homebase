@@ -1,19 +1,56 @@
 {% extends 'base.html' %}
 
 {% block main %}
-    <div class="flex flex-col gap-4 max-w-screen-sm">
+    <div class="flex flex-col gap-6 max-w-screen-lg py-6">
         <h1 class="text-xl font-bold">Årshjulet</h1>
-        <a class="uk-card uk-card-body" href="/spring/">
-            <h2 class="uk-card-title">Vår</h2>
-        </a>
-        <a class="uk-card uk-card-body" href="/summer/">
-            <h2 class="uk-card-title">Sommer</h2>
-        </a>
-        <a class="uk-card uk-card-body" href="/autumn/">
-            <h2 class="uk-card-title">Høst</h2>
-        </a>
-        <a class="uk-card uk-card-body" href="/winter/">
-            <h2 class="uk-card-title">Winter</h2>
-        </a>
+
+        <!-- Calendar module: current month with daily tasks -->
+        <div class="uk-card uk-card-body">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <a class="uk-button uk-button-default" href="?year={{ prev_year }}&month={{ prev_month }}" title="Forrige måned">‹</a>
+                    <h2 class="uk-card-title m-0">{{ month_label|default:"Denne måneden" }} {{ year }}</h2>
+                    <a class="uk-button uk-button-default" href="?year={{ next_year }}&month={{ next_month }}" title="Neste måned">›</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a class="uk-button uk-button-primary" href="{% url 'task_create' %}">Ny oppgave</a>
+                    <a class="uk-button uk-button-default" href="{% url 'month_list' %}?month={{ month }}">Åpne månedsliste</a>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="uk-table uk-table-divider uk-table-small" style="min-width: 640px;">
+                    <thead>
+                        <tr>
+                            {% for wd in weekday_labels %}
+                                <th class="text-left">{{ wd }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for week in weeks %}
+                            <tr>
+                                {% for cell in week %}
+                                    <td class="align-top" style="width:14.28%">
+                                        {% if cell.day %}
+                                            <div class="text-sm font-semibold mb-1 {% if today.day == cell.day %}uk-text-primary{% endif %}">{{ cell.day }}</div>
+                                            {% if cell.tasks %}
+                                                {% for t in cell.tasks %}
+                                                    {% include 'partials/task_checkbox.html' with task=t year=year %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class="text-xs uk-text-muted">Ingen</div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="uk-text-muted">&nbsp;</div>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock %}

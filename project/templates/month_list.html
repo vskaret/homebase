@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="flex flex-col gap-4 max-w-screen-sm py-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold">Oppgaver i {{ month_label }}</h1>
+        <a class="uk-button uk-button-primary" href="{% url 'task_create' %}">Ny oppgave</a>
+    </div>
+
+    <form method="get" class="uk-card uk-card-body">
+        <label for="month" class="uk-form-label">Velg måned</label>
+        <div class="uk-form-controls">
+            <select name="month" id="month" class="uk-select" onchange="this.form.submit()">
+                {% for value, label in month_choices %}
+                    <option value="{{ value }}" {% if value == selected_month %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <noscript>
+            <button class="uk-button uk-button-default" type="submit">Vis</button>
+        </noscript>
+    </form>
+
+    {% if tasks %}
+        <ul class="uk-list uk-list-divider">
+            {% for task in tasks %}
+                <li>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-semibold">{{ task.name }}</div>
+                            {% if task.notes %}
+                                <div class="text-sm text-muted">{{ task.notes }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-sm">{{ task.human_when }}</div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="uk-alert">Ingen oppgaver denne måneden.</div>
+    {% endif %}
+
+    <div>
+        <a href="/" class="uk-link">Tilbake til årshjulet</a>
+    </div>
+</div>
+{% endblock %}
