@@ -12,29 +12,30 @@ class TaskForm(forms.ModelForm):
             "month",
             "day",
         ]
+        base_input = "block w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         widgets = {
             "name": forms.TextInput(
                 attrs={
-                    "class": "uk-input",
+                    "class": base_input,
                     "placeholder": "Hva skal gjøres?",
                     "autofocus": "autofocus",
                 }
             ),
             "notes": forms.Textarea(
                 attrs={
-                    "class": "uk-textarea",
+                    "class": base_input,
                     "rows": 3,
                     "placeholder": "Eventuelle detaljer/notater",
                 }
             ),
             "season": forms.Select(
                 attrs={
-                    "class": "uk-select",
+                    "class": base_input,
                 }
             ),
             "month": forms.NumberInput(
                 attrs={
-                    "class": "uk-input",
+                    "class": base_input,
                     "min": 1,
                     "max": 12,
                     "placeholder": "1-12",
@@ -42,7 +43,7 @@ class TaskForm(forms.ModelForm):
             ),
             "day": forms.NumberInput(
                 attrs={
-                    "class": "uk-input",
+                    "class": base_input,
                     "min": 1,
                     "max": 31,
                     "placeholder": "1-31",

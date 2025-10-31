@@ -4,18 +4,18 @@
 <div class="flex flex-col gap-4 max-w-screen-sm py-6">
     <div class="flex items-center justify-between">
         <h1 class="text-xl font-bold">{{ season_label }}</h1>
-        <a class="uk-button uk-button-primary" href="{% url 'task_create' %}">Ny oppgave</a>
+        <a class="inline-flex items-center rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700" href="{% url 'task_create' %}">Ny oppgave</a>
     </div>
 
     {% if tasks %}
-        <ul class="uk-list uk-list-divider">
+        <ul class="divide-y divide-gray-200 rounded border border-gray-200 bg-white">
             {% for task in tasks %}
-                <li>
+                <li class="p-3">
                     <div class="flex items-center justify-between">
                         <div>
                             <div class="font-semibold">{{ task.name }}</div>
                             {% if task.notes %}
-                                <div class="text-sm text-muted">{{ task.notes }}</div>
+                                <div class="text-sm text-gray-500">{{ task.notes }}</div>
                             {% endif %}
                         </div>
                         <div class="text-sm">{{ task.human_when }}</div>
@@ -24,11 +24,11 @@
             {% endfor %}
         </ul>
     {% else %}
-        <div class="uk-alert">Ingen oppgaver i denne sesongen ennå.</div>
+        <div class="rounded border border-gray-200 bg-white p-3 text-gray-700">Ingen oppgaver i denne sesongen ennå.</div>
     {% endif %}
 
     <div>
-        <a href="/" class="uk-link">Tilbake til årshjulet</a>
+        <a href="/" class="text-blue-600 hover:underline">Tilbake til årshjulet</a>
     </div>
 </div>
 {% endblock %}

@@ -5,21 +5,21 @@
         <h1 class="text-xl font-bold">Årshjulet</h1>
 
         <!-- Calendar module: current month with daily tasks -->
-        <div class="uk-card uk-card-body">
+        <div class="rounded border border-gray-200 bg-white p-4 shadow-sm">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                    <a class="uk-button uk-button-default" href="?year={{ prev_year }}&month={{ prev_month }}" title="Forrige måned">‹</a>
-                    <h2 class="uk-card-title m-0">{{ month_label|default:"Denne måneden" }} {{ year }}</h2>
-                    <a class="uk-button uk-button-default" href="?year={{ next_year }}&month={{ next_month }}" title="Neste måned">›</a>
+                    <a class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-1.5 text-sm hover:bg-gray-50" href="?year={{ prev_year }}&month={{ prev_month }}" title="Forrige måned">‹</a>
+                    <h2 class="m-0 text-lg font-semibold">{{ month_label|default:"Denne måneden" }} {{ year }}</h2>
+                    <a class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-1.5 text-sm hover:bg-gray-50" href="?year={{ next_year }}&month={{ next_month }}" title="Neste måned">›</a>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a class="uk-button uk-button-primary" href="{% url 'task_create' %}">Ny oppgave</a>
-                    <a class="uk-button uk-button-default" href="{% url 'month_list' %}?month={{ month }}">Åpne månedsliste</a>
+                    <a class="inline-flex items-center rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700" href="{% url 'task_create' %}">Ny oppgave</a>
+                    <a class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-1.5 text-sm hover:bg-gray-50" href="{% url 'month_list' %}?month={{ month }}">Åpne månedsliste</a>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="uk-table uk-table-divider uk-table-small" style="min-width: 640px;">
+                <table class="w-full table-auto border-collapse" style="min-width: 640px;">
                     <thead>
                         <tr>
                             {% for wd in weekday_labels %}
@@ -33,16 +33,16 @@
                                 {% for cell in week %}
                                     <td class="align-top" style="width:14.28%">
                                         {% if cell.day %}
-                                            <div class="text-sm font-semibold mb-1 {% if today.day == cell.day %}uk-text-primary{% endif %}">{{ cell.day }}</div>
+                                            <div class="text-sm font-semibold mb-1 {% if today.day == cell.day %}text-blue-600{% endif %}">{{ cell.day }}</div>
                                             {% if cell.tasks %}
                                                 {% for t in cell.tasks %}
                                                     {% include 'partials/task_checkbox.html' with task=t year=year %}
                                                 {% endfor %}
                                             {% else %}
-                                                <div class="text-xs uk-text-muted">Ingen</div>
+                                                <div class="text-xs text-gray-500">Ingen</div>
                                             {% endif %}
                                         {% else %}
-                                            <div class="uk-text-muted">&nbsp;</div>
+                                            <div class="text-gray-400">&nbsp;</div>
                                         {% endif %}
                                     </td>
                                 {% endfor %}

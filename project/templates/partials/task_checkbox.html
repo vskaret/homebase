@@ -8,9 +8,8 @@
   hx-vals='{"year": "{{ year }}"}'
 >
   <input
-    class="uk-checkbox"
     type="checkbox"
     {% if task.is_done %}checked{% endif %}
   />
-  <span class="{% if task.is_done %}line-through uk-text-muted{% endif %}">{{ task.name }}</span>
+  <span class="{% if task.is_done %}line-through text-gray-500{% endif %}">{{ task.name }}</span>
 </label>
