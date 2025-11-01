@@ -11,9 +11,13 @@ services:
         volumes:
             - static_volume:/code/staticfiles
         expose:
-            - 3000     
+            - 8000
         environment:
             DEBUG: "False"
-   
+            SECRET_KEY: ${SECRET_KEY}
+            ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+            CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+            DATABASE_URL: ${DATABASE_URL}
+
 volumes:
     static_volume: {}
