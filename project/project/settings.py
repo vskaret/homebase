@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,14 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-y9yb$sod(1ex=h9*kbcgk!mvq_8@2jb^z7%%v#0lsp)^0_i8@6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG can be configured via environment variable DEBUG (True/False)
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = [
-        'localhost',
-        'b0gkc84g4woww0c00kcc04c0.84.49.222.85.sslip.io',
-        '192.168.1.166',
-        '127.0.0.1',
-]
+# Allow hosts from env (comma separated). Default to '*' for container platforms
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '*').split(',') if h.strip()]
 
 
 # Application definition
@@ -124,9 +122,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# Include app/static only if it exists to avoid warnings in containers
+_static_dir = BASE_DIR / 'static'
+STATICFILES_DIRS = [_static_dir] if _static_dir.exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Optional: allow configuring CSRF trusted origins from env (comma separated)
+_csrf = os.getenv('CSRF_TRUSTED_ORIGINS')
+if _csrf:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf.split(',') if o.strip()]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

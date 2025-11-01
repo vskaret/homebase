@@ -13,4 +13,9 @@ do
 done
 
 
-gunicorn --bind :3000 --workers 2 project.wsgi
+# Allow platform to specify port and workers
+PORT="${PORT:-8000}"
+WORKERS="${WORKERS:-2}"
+
+echo "Starting gunicorn on :$PORT with $WORKERS workers"
+gunicorn --bind ":${PORT}" --workers "${WORKERS}" project.wsgi
