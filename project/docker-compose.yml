@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+    server:
+        container_name: djproject
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        entrypoint: /code/entrypoint.sh
+        volumes:
+            - static_volume:/code/staticfiles
+        expose:
+            - 3000     
+        environment:
+            DEBUG: "False"
+   
+volumes:
+    static_volume: {}
