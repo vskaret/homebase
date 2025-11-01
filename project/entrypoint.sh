@@ -13,4 +13,4 @@ do
 done
 
 
-gunicorn --bind :3000 --workers 2 djproject.wsgi
+gunicorn --bind :3000 --workers 2 project.wsgi
