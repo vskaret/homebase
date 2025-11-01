@@ -27,7 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
         'localhost',
-        'http://b0gkc84g4woww0c00kcc04c0.84.49.222.85.sslip.io'
+        'http://b0gkc84g4woww0c00kcc04c0.84.49.222.85.sslip.io',
+        '192.168.1.166',
 ]
 
 
